@@ -1,0 +1,133 @@
+<!--------------------------------------------------------------------------
+Resources
+
+- https://leafletjs.com/index.html
+- https://github.com/Leaflet/Leaflet.markercluster
+--------------------------------------------------------------------------->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <title>Leaflet + Mapbox + MarkerCluster Example</title>
+
+    <!-- Concatenate and minify these assets with your task runner of choice -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.3.3/dist/leaflet.css"
+        integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
+        crossorigin="anonymous">
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.css"
+        integrity="sha384-lPzjPsFQL6te2x+VxmV6q1DpRxpRk0tmnl2cpwAO5y04ESyc752tnEWPKDfl1olr"
+        crossorigin="anonymous">
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.Default.css"
+        integrity="sha384-5kMSQJ6S4Qj5i09mtMNrWpSi8iXw230pKU76xTmrpezGnNJQzj0NzXjQLLg+jE7k"
+        crossorigin="anonymous">
+    <script
+        src="https://unpkg.com/leaflet@1.3.3/dist/leaflet.js"
+        integrity="sha512-tAGcCfR4Sc5ZP5ZoVz0quoZDYX5aCtEm/eu1KhSLj2c9eFrylXZknQYmxUssFaVJKvvc0dJQixhGjG2yXWiV9Q=="
+        crossorigin="anonymous"></script>
+    <script
+        src="https://unpkg.com/leaflet.markercluster@1.3.0/dist/leaflet.markercluster.js"
+        integrity="sha384-1artbd0pdGdZ72+IcKWkY1So1xu4Hzygfd0cVLSs7f5lBZZ/FhyEZc4UyQR3DT9c"
+        crossorigin="anonymous"></script>
+</head>
+<body>
+    <div id='map'></div>
+    <style>
+    #map {
+        margin: auto;
+        width: 80vw;
+        height: 80vh;
+    }
+    </style>
+    <script>
+    // Grab your access token via https://www.mapbox.com
+    const accessToken = 'ACCESS_TOKEN';
+    const center      = [ 52.081813, 4.2932258 ];
+    const zoom        = 12;
+
+    const map     = L.map('map').setView(center, zoom);
+    const markers = L.markerClusterGroup();
+
+    // See Mapbox API Documentation
+    // https://www.mapbox.com/api-documentation/#maps
+    //
+    // Or pick a different one:
+    // http://leaflet-extras.github.io/leaflet-providers/preview/
+    L.tileLayer(
+        // 'https://api.mapbox.com/styles/v1/mapbox/streets-v10/tiles/{z}/{x}/{y}?access_token=' + accessToken,
+        'https://api.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png?access_token=' + accessToken,
+        // 'https://api.mapbox.com/v4/mapbox.mapbox-streets-v7/{z}/{x}/{y}.png?access_token=' + accessToken,
+        // 'https://api.mapbox.com/v4/mapbox.mapbox-terrain-v2/{z}/{x}/{y}.png?access_token=' + accessToken,
+        // 'https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.png?access_token=' + accessToken,
+        {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 18,
+            id: 'mapbox.streets',
+            accessToken: accessToken
+        }
+    )
+    .addTo(map);
+
+    // DUMMY RESPONSE
+    const response = [
+        {
+            lat: 52.0866,
+            lng: 4.2956,
+            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris sed vehicula mauris.",
+            link: "https://www.vredespaleis.nl",
+            title: "Peace Palace"
+        },
+        {
+            lat: 52.0808905,
+            lng: 4.3063686,
+            description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris sed vehicula mauris.",
+            link: "https://www.koninklijkhuis.nl",
+            title: "Noordeinde Palace"
+        }
+    ];
+
+    // Leaflet Icon
+    // https://leafletjs.com/reference-1.3.2.html#icon
+    const icon = L.icon({
+        iconAnchor: [12, 41],
+        iconRetinaUrl: "https://unpkg.com/leaflet@1.3.3/dist/images/marker-icon-2x.png", // marker-icon-2x.png"
+        iconSize: [25, 41],
+        iconUrl:"https://unpkg.com/leaflet@1.3.3/dist/images/marker-icon.png", // marker-icon.png"
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41],
+        shadowUrl: "https://unpkg.com/leaflet@1.3.3/dist/images/marker-shadow.png", // marker-shadow.png"
+        tooltipAnchor: [16, -28]
+    });
+
+    response.forEach(function(item){
+        let location = new L.LatLng(item.lat, item.lng)
+        let options = {
+            icon: icon,
+            title: item.title
+        };
+
+        // Leaflet Marker
+        // https://leafletjs.com/reference-1.3.2.html#marker
+        let marker = new L.marker(location, options);
+
+        // Template literals
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+        marker.bindPopup(`
+            <h2>${item.title}</h2>
+            <p>${item.description}</p>
+            <a href='${item.link}'>Read more</a>
+        `);
+        markers.addLayer(marker);
+    });
+
+    markers.addTo(map);
+    </script>
+</body>
+</html>
